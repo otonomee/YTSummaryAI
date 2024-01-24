@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Video Interactor",
+  "version": "1.0",
+  "description": "Interacts with YouTube videos",
+  "permissions": ["activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/watch*"],
+      "js": ["./contentScript.js"]
+    }
+  ]
+}
