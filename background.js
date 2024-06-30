@@ -1,8 +1,15 @@
 console.log('background.js is running')
 
-// chrome.browserAction.onClicked.addListener(function (tab) {
-//   chrome.tabs.executeScript(tab.id, { file: "contentScript.js" });
-// });
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install' || details.reason === 'update') {
+    chrome.windows.create({
+      url: 'modal.html',
+      type: 'popup',
+      width: 400,
+      height: 300
+    });
+  }
+});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "openSidePanel") {
@@ -30,7 +37,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         "accept": "application/xml, text/xml, */*; q=0.01",
         "accept-language": "en-US,en;q=0.9",
         "priority": "u=1, i",
-        "sec-ch-ua": "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google Chrome\";v=\"126\"",
+        "sec-ch-ua": "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google 
+Chrome\";v=\"126\"",
         "sec-ch-ua-mobile": "?0",
         "sec-ch-ua-platform": "\"Windows\"",
         "sec-fetch-dest": "empty",

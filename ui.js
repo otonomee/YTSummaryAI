@@ -37,34 +37,53 @@ function generatePrompt(transcript) {
 }
 
 function getGPTResponse(transcript) {
-    let openai_api_key = "";
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(['openai_api_key'], (result) => {
+      const openai_api_key = result.openai_api_key;
 
-    return fetch("https://api.openai.com/v1/chat/completions", {
+      if (!openai_api_key) {
+        reject(new Error('OpenAI API key not found'));
+        return;
+      }
+
+      fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${openai_api_key}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openai_api_key}`,
         },
         body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [
-            { role: "system", content: "You are ChatGPT, a large language model trained by OpenAI." },
+          model: "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "You are ChatGPT, a large language model 
+trained by OpenAI." },
             {
-                role: "user",
-                content: transcript,
+              role: "user",
+              content: transcript,
             },
-            ],
+          ],
         }),
-    })
-    .then(ans => ans.json())
-    .then(ans => {
-        console.log(ans.choices[0].message.content)
-        let resp = ans.choices[0].message.content;
-        chrome.runtime.sendMessage({action: "GPTResponse", data: resp})
-    })
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.choices[0].message.content);
+          const resp = data.choices[0].message.content;
+          chrome.runtime.sendMessage({ action: "GPTResponse", data: resp }, () => {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError);
+              reject(chrome.runtime.lastError);
+            } else {
+              resolve();
+            }
+          });
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          reject(error);
+        });
+    });
+  });
 }
-
-
   
   new MutationObserver(() => {
     let target = document.querySelector('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls')
