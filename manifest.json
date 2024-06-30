@@ -3,11 +3,24 @@
   "name": "YouTube Video Interactor",
   "version": "1.0",
   "description": "Interacts with YouTube videos",
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["activeTab", "scripting", "sidePanel", "tabs", "input", "webNavigation"],
+  "host_permissions" : ["<all_urls>", "https://www.youtube.com/*"],
   "content_scripts": [
     {
-      "matches": ["https://www.youtube.com/watch*"],
-      "js": ["./contentScript.js"]
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["ui.js"]
     }
-  ]
+  ],
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
+  },
+  "web_accessible_resources": [
+    {
+      "resources":["/img/*"],
+      "matches":["<all_urls>"]
+    }
+  ],
+  "background": {
+  "service_worker": "background.js"
+  }
 }
