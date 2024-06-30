@@ -1,28 +1,29 @@
 console.log("background.js is running");
 
 chrome.runtime.onInstalled.addListener((details) => {
-  if (details.reason === "install" || details.reason === "update") {
-    chrome.windows.create({
-      url: "modal.html",
-      type: "popup",
-      width: 400,
-      height: 300,
-    });
+  if (details.reason === "install") {
+    chrome.storage.local.set({ openai_api_key: "" });
   }
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "openSidePanel") {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      const currentTab = tabs[0];
-      if (currentTab.url.match(/https:\/\/www\.youtube\.com\/watch\?v=.*/)) {
-        chrome.sidePanel.open({ tabId: currentTab.id });
-        sendResponse({ status: "Side panel opened" });
-      } else {
-        sendResponse({ status: "Not a YouTube video page" });
+    chrome.windows.create(
+      {
+        url: "modal.html",
+        type: "popup",
+        width: 400,
+        height: 300,
+      },
+      (window) => {
+        chrome.windows.onRemoved.addListener((windowId) => {
+          if (windowId === window.id) {
+            sendResponse({ popupClosed: true });
+          }
+        });
       }
-    });
-    return true; // Keep the message channel open for asynchronous response
+    );
+    return true;
   } else if (message.action === "extractTranscript") {
     function getYoutubeVideoId(url) {
       const regex = /[?&]v=([^&#]*)/;
