@@ -100,9 +100,15 @@ trained by OpenAI." },
   
   function startlistening() {
     document.getElementById('generateSum').addEventListener("click", async () => {
-        chrome.runtime.sendMessage({action: "openSidePanel"});
-        console.log('clicked')
-        fetchAndCleanTranscript()
-    })
+      chrome.storage.local.get(['openai_api_key'], (result) => {
+        if (!result.openai_api_key) {
+          chrome.runtime.sendMessage({ action: "openPopup" });
+        } else {
+          chrome.runtime.sendMessage({action: "openSidePanel"});
+          console.log('clicked');
+          fetchAndCleanTranscript();
+        }
+      });
+    });
   }
   
